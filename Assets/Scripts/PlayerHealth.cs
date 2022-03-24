@@ -26,9 +26,7 @@ public class PlayerHealth : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Update Sliders
-        healthSlider.value = currentHealth / maxHealth;
-        liquidHealthSlider.value = liquidHealth / maxHealth;
+        updateSliders();
 
         //Tick Timer & Liquid Health Decay
         if (decayInProgress && currentLiquidDecayTimer < liquidDecayDelay) currentLiquidDecayTimer += Time.deltaTime;
@@ -43,7 +41,12 @@ public class PlayerHealth : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Y)) liquidHeal(10);
         if (Input.GetKeyDown(KeyCode.C)) trueHeal(10);
         if (isDead()) Debug.Log("Is dead!");*/
-    }    
+    }
+
+    void updateSliders(){
+        healthSlider.value = currentHealth / maxHealth;
+        liquidHealthSlider.value = liquidHealth / maxHealth;
+    }
 
     bool isDead() {
         return (currentHealth == 0 && liquidHealth == 0);
@@ -56,12 +59,6 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    void takeDamage(float damage){
-        currentHealth -= damage;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        startDecayTimer();
-    }
-
     void readjustHealth() {
         if (currentHealth >= liquidHealth) {
             liquidHealth = currentHealth;
@@ -70,17 +67,19 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    void liquidHeal(float value) {
-        if (value > liquidHealth - currentHealth) value = liquidHealth - currentHealth;
-        currentHealth += value;
+    //Public Functions
+    public void takeDamage(float damage){
+        currentHealth = Mathf.Clamp(currentHealth - damage, 0, maxHealth);        
+        startDecayTimer();
+    }
 
+    public void liquidHeal(float value) {
+        currentHealth = Mathf.Clamp(currentHealth + value, currentHealth, liquidHealth);
         readjustHealth();
     }
 
-    void trueHeal(float value) {
-        currentHealth += value;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-
+    public void trueHeal(float value) {
+        currentHealth = Mathf.Clamp(currentHealth + value, currentHealth, maxHealth);
         readjustHealth();
     }
 }
